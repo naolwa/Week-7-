@@ -1,0 +1,466 @@
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Zap, Heart, Star } from 'lucide-react';
+
+export default function InteractiveAnimationProject() {
+  // ==========================================
+  // PART 2: GLOBAL SCOPE VARIABLES
+  // These are accessible throughout the component
+  // ==========================================
+  const [animationActive, setAnimationActive] = useState(false);
+  const [cardFlipped, setCardFlipped] = useState({});
+  const [modalOpen, setModalOpen] = useState(false);
+  const [score, setScore] = useState(0);
+  const [pulseActive, setPulseActive] = useState(false);
+
+  // ==========================================
+  // PART 2: FUNCTIONS WITH PARAMETERS & RETURN VALUES
+  // Demonstrating scope, parameters, and returns
+  // ==========================================
+
+  /**
+   * Calculates animation delay based on index
+   * @param {number} index - Position in array
+   * @returns {number} - Delay in milliseconds
+   * LOCAL SCOPE: multiplier only exists within this function
+   */
+  function calculateDelay(index) {
+    const multiplier = 100; // LOCAL variable - only accessible here
+    return index * multiplier;
+  }
+
+  /**
+   * Determines card color based on type
+   * @param {string} type - Card category
+   * @returns {string} - Tailwind color class
+   * Demonstrates PARAMETER usage and RETURN values
+   */
+  function getCardColor(type) {
+    const colorMap = { // LOCAL object
+      fire: 'bg-gradient-to-br from-red-400 to-orange-500',
+      water: 'bg-gradient-to-br from-blue-400 to-cyan-500',
+      earth: 'bg-gradient-to-br from-green-400 to-emerald-500',
+      air: 'bg-gradient-to-br from-purple-400 to-pink-500'
+    };
+    return colorMap[type] || 'bg-gray-400'; // RETURN statement
+  }
+
+  /**
+   * Validates and updates score
+   * @param {number} points - Points to add
+   * @returns {boolean} - Whether update was successful
+   * Shows how functions can UPDATE GLOBAL scope through setState
+   */
+  function addPoints(points) {
+    if (typeof points !== 'number' || points < 0) {
+      console.log('Invalid points value');
+      return false; // EARLY RETURN for validation
+    }
+    setScore(prevScore => prevScore + points); // Updates GLOBAL state
+    return true; // SUCCESS return
+  }
+
+  /**
+   * Generates random position for floating elements
+   * @returns {object} - Object with x and y coordinates
+   * LOCAL SCOPE: variables only exist during function execution
+   */
+  function getRandomPosition() {
+    const maxX = 80; // LOCAL constant
+    const maxY = 80; // LOCAL constant
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+    return { x, y }; // RETURN object
+  }
+
+  // ==========================================
+  // PART 3: COMBINING JS WITH CSS ANIMATIONS
+  // Functions that trigger CSS animations
+  // ==========================================
+
+  /**
+   * Toggles card flip animation
+   * @param {number} cardId - ID of card to flip
+   * Demonstrates JS triggering CSS animations via state
+   */
+  function toggleCardFlip(cardId) {
+    setCardFlipped(prev => ({
+      ...prev,
+      [cardId]: !prev[cardId]
+    }));
+    addPoints(10); // Reusing another function!
+  }
+
+  /**
+   * Activates pulse animation for limited time
+   * Shows TIME-BASED animation control
+   */
+  function triggerPulse() {
+    setPulseActive(true);
+    setTimeout(() => { // LOCAL timeout function
+      setPulseActive(false);
+    }, 2000);
+  }
+
+  /**
+   * Opens modal with animation
+   * JS controls when CSS animation triggers
+   */
+  function openModal() {
+    setModalOpen(true);
+    addPoints(5);
+  }
+
+  /**
+   * Closes modal with fade-out
+   */
+  function closeModal() {
+    setModalOpen(false);
+  }
+
+  // Sample card data
+  const cards = [
+    { id: 1, type: 'fire', title: 'Fire', icon: <Zap className="w-8 h-8" /> },
+    { id: 2, type: 'water', title: 'Water', icon: <Sparkles className="w-8 h-8" /> },
+    { id: 3, type: 'earth', title: 'Earth', icon: <Heart className="w-8 h-8" /> },
+    { id: 4, type: 'air', title: 'Air', icon: <Star className="w-8 h-8" /> }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+      {/* ==========================================
+          HEADER WITH CSS ANIMATIONS
+          ========================================== */}
+      <header className="text-center mb-12">
+        <h1 className="text-5xl font-bold text-white mb-4 animate-fade-in">
+          Interactive Animation Portfolio
+        </h1>
+        <p className="text-gray-300 text-lg animate-slide-up">
+          Demonstrating CSS Transitions, Animations & JavaScript Functions
+        </p>
+        
+        {/* Score Display with Pulse Animation */}
+        <div className={`mt-6 inline-block ${pulseActive ? 'animate-pulse-scale' : ''}`}>
+          <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20">
+            <span className="text-yellow-300 text-2xl font-bold">
+              Score: {score}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* ==========================================
+          PART 1: CSS HOVER EFFECTS ON BUTTONS
+          ========================================== */}
+      <div className="flex gap-4 justify-center mb-12 flex-wrap">
+        <button
+          onClick={() => {
+            setAnimationActive(!animationActive);
+            triggerPulse();
+          }}
+          className="btn-hover-lift bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-cyan-500/50 transition-all duration-300"
+        >
+          Toggle Animations
+        </button>
+        
+        <button
+          onClick={openModal}
+          className="btn-hover-glow bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-purple-500/50 transition-all duration-300"
+        >
+          Open Modal
+        </button>
+        
+        <button
+          onClick={() => {
+            setScore(0);
+            triggerPulse();
+          }}
+          className="btn-hover-shake bg-gradient-to-r from-red-500 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-red-500/50 transition-all duration-300"
+        >
+          Reset Score
+        </button>
+      </div>
+
+      {/* ==========================================
+          PART 3: CARD GRID WITH JS-TRIGGERED ANIMATIONS
+          Click cards to flip them!
+          ========================================== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-12">
+        {cards.map((card, index) => (
+          <div
+            key={card.id}
+            onClick={() => toggleCardFlip(card.id)}
+            className="card-flip-container cursor-pointer h-64"
+            style={{
+              animationDelay: `${calculateDelay(index)}ms` // USING FUNCTION!
+            }}
+          >
+            <div className={`card-flip-inner ${cardFlipped[card.id] ? 'flipped' : ''} ${animationActive ? 'animate-float' : ''}`}>
+              {/* FRONT FACE */}
+              <div className={`card-face card-front ${getCardColor(card.type)} rounded-xl shadow-2xl p-6 flex flex-col items-center justify-center text-white`}>
+                {card.icon}
+                <h3 className="text-2xl font-bold mt-4">{card.title}</h3>
+                <p className="text-sm mt-2 opacity-80">Click to flip!</p>
+              </div>
+              
+              {/* BACK FACE */}
+              <div className="card-face card-back bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl p-6 flex flex-col items-center justify-center text-white border-2 border-white/20">
+                <h3 className="text-xl font-bold mb-2">Element Power</h3>
+                <p className="text-center text-sm">
+                  This is the {card.title} element card. Master its power!
+                </p>
+                <div className="mt-4 text-yellow-300 font-bold">+10 pts</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ==========================================
+          PART 1: LOADING ANIMATION (PURE CSS)
+          ========================================== */}
+      <div className="text-center mb-12">
+        <h2 className="text-white text-2xl mb-4">CSS Keyframe Animation</h2>
+        <div className="flex gap-2 justify-center items-end h-20">
+          <div className="loading-bar bg-cyan-400 w-4 rounded-full" style={{ animationDelay: '0s' }}></div>
+          <div className="loading-bar bg-blue-400 w-4 rounded-full" style={{ animationDelay: '0.1s' }}></div>
+          <div className="loading-bar bg-purple-400 w-4 rounded-full" style={{ animationDelay: '0.2s' }}></div>
+          <div className="loading-bar bg-pink-400 w-4 rounded-full" style={{ animationDelay: '0.3s' }}></div>
+        </div>
+      </div>
+
+      {/* ==========================================
+          PART 3: MODAL WITH JS-TRIGGERED ANIMATIONS
+          ========================================== */}
+      {modalOpen && (
+        <div 
+          className="modal-overlay fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in"
+          onClick={closeModal}
+        >
+          <div 
+            className="modal-content bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl p-8 max-w-md mx-4 shadow-2xl animate-slide-in-bounce"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-3xl font-bold text-white mb-4">🎉 Amazing Work!</h2>
+            <p className="text-white/90 mb-6">
+              You've successfully triggered a modal with JavaScript! This demonstrates:
+            </p>
+            <ul className="text-white/90 space-y-2 mb-6 list-disc list-inside">
+              <li>Function parameters & returns</li>
+              <li>JS-triggered CSS animations</li>
+              <li>Event handling & state management</li>
+            </ul>
+            <button
+              onClick={closeModal}
+              className="w-full bg-white text-purple-600 font-bold py-3 rounded-lg hover:bg-gray-100 transition-all duration-300 hover:scale-105"
+            >
+              Close Modal
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          DOCUMENTATION SECTION
+          ========================================== */}
+      <div className="max-w-4xl mx-auto mt-12 bg-white/5 backdrop-blur-md rounded-xl p-8 border border-white/10">
+        <h2 className="text-2xl font-bold text-white mb-4">📚 Assignment Documentation</h2>
+        
+        <div className="space-y-4 text-gray-300">
+          <div>
+            <h3 className="text-xl font-semibold text-cyan-300 mb-2">Part 1: CSS Animations ✨</h3>
+            <ul className="list-disc list-inside space-y-1 ml-4">
+              <li>Button hover effects with transforms and shadows</li>
+              <li>Card flip animations using CSS transforms</li>
+              <li>Loading bar animation using @keyframes</li>
+              <li>Fade-in, slide-up, and pulse animations</li>
+              <li>Continuous float animation on cards</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-purple-300 mb-2">Part 2: JavaScript Functions 🎯</h3>
+            <ul className="list-disc list-inside space-y-1 ml-4">
+              <li><code>calculateDelay(index)</code> - Returns delay based on position</li>
+              <li><code>getCardColor(type)</code> - Returns color class based on type</li>
+              <li><code>addPoints(points)</code> - Validates and updates global score</li>
+              <li><code>getRandomPosition()</code> - Returns random coordinates</li>
+              <li>Demonstrates local vs global scope throughout</li>
+              <li>All functions use parameters and return values</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-pink-300 mb-2">Part 3: JS + CSS Integration 🎨</h3>
+            <ul className="list-disc list-inside space-y-1 ml-4">
+              <li><code>toggleCardFlip()</code> - Triggers flip animation via state</li>
+              <li><code>triggerPulse()</code> - Activates time-based pulse effect</li>
+              <li><code>openModal()/closeModal()</code> - Controls modal animations</li>
+              <li>State changes trigger CSS class additions/removals</li>
+              <li>Reusable animation patterns throughout</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* CSS ANIMATIONS DEFINED IN STYLE TAG */}
+      <style>{`
+        /* ==========================================
+           PART 1: CSS TRANSITIONS & KEYFRAMES
+           ========================================== */
+        
+        /* Fade in animation */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 1s ease-in;
+        }
+        
+        /* Slide up animation */
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-slide-up {
+          animation: slideUp 0.8s ease-out 0.3s both;
+        }
+        
+        /* Pulse scale animation */
+        @keyframes pulseScale {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+        
+        .animate-pulse-scale {
+          animation: pulseScale 0.6s ease-in-out;
+        }
+        
+        /* Float animation for cards */
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+        
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Loading bar animation */
+        @keyframes loadingBounce {
+          0%, 100% {
+            height: 20px;
+          }
+          50% {
+            height: 60px;
+          }
+        }
+        
+        .loading-bar {
+          animation: loadingBounce 1s ease-in-out infinite;
+        }
+        
+        /* Modal slide in with bounce */
+        @keyframes slideInBounce {
+          0% {
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+          }
+          60% {
+            opacity: 1;
+            transform: translateY(10px) scale(1.05);
+          }
+          100% {
+            transform: translateY(0) scale(1);
+          }
+        }
+        
+        .animate-slide-in-bounce {
+          animation: slideInBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        /* Button hover effects */
+        .btn-hover-lift {
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .btn-hover-lift:hover {
+          transform: translateY(-3px) scale(1.02);
+        }
+        
+        .btn-hover-glow:hover {
+          transform: scale(1.05);
+          box-shadow: 0 0 30px currentColor;
+        }
+        
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px) rotate(-2deg); }
+          75% { transform: translateX(5px) rotate(2deg); }
+        }
+        
+        .btn-hover-shake:hover {
+          animation: shake 0.5s ease;
+        }
+        
+        /* ==========================================
+           PART 3: CARD FLIP ANIMATION (JS-TRIGGERED)
+           ========================================== */
+        
+        .card-flip-container {
+          perspective: 1000px;
+        }
+        
+        .card-flip-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          transition: transform 0.6s;
+          transform-style: preserve-3d;
+        }
+        
+        .card-flip-inner.flipped {
+          transform: rotateY(180deg);
+        }
+        
+        .card-face {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+        
+        .card-back {
+          transform: rotateY(180deg);
+        }
+        
+        /* Smooth hover effect on cards */
+        .card-flip-container:hover .card-flip-inner:not(.flipped) {
+          transform: translateY(-5px) scale(1.02);
+          transition: transform 0.3s ease;
+        }
+      `}</style>
+    </div>
+  );
+}
